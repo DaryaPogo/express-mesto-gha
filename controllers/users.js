@@ -13,7 +13,7 @@ const findUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
   .orFail(
-    () => res.status(400).send({message: 'Not found'})
+    () => res.status(404).send({message: 'Not found'})
   )
   .then((user) => {
     res.status(200).send(user);

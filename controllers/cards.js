@@ -30,13 +30,13 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Cards.findByIdAndDelete(cardId)
   .orFail(
-    () => res.status(ERROR_CODE).send({message: 'Not found'})
+    () => res.status(ERROR_USER).send({message: 'Not found'})
   )
   .then((result) => {
     res.status(SUCSESS).send(result)
   })
   .catch(() => {
-    res.status(ERROR_USER).send({message: 'Not found'})
+    res.status(ERROR_CODE).send({message: 'Incorrect data'})
   })
 }
 
@@ -47,13 +47,13 @@ const likeCard = (req, res) => {
     { new: true },
   )
   .orFail(
-    () => res.status(ERROR_CODE).send({message: 'Not found'})
+    () => res.status(ERROR_USER).send({message: 'Not found'})
   )
   .then((result) =>{
     res.status(SUCSESS).send(result)
   })
   .catch(() => {
-    res.status(ERROR_DEFAULT).send({message: 'Not found'})
+    res.status(ERROR_CODE).send({message: 'Incorrect data'})
   })
 }
 
@@ -64,13 +64,13 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
   .orFail(
-    () => res.status(ERROR_CODE).send({message: 'Not found'})
+    () => res.status(ERROR_USER).send({message: 'Not found'})
   )
   .then((result) =>{
     res.status(SUCSESS).send(result)
   })
   .catch(() => {
-    res.status(ERROR_USER).send({message: 'Not found'})
+    res.status(ERROR_CODE).send({message: 'Incorrect data'})
   })
 }
 
