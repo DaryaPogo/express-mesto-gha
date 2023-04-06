@@ -26,11 +26,11 @@ router.post('/', (req, res) => {
 router.delete('/:cardId', (req, res) => {
   const { cardId } = req.params;
   Cards.findByIdAndDelete(cardId)
-  .orFail(() => {
-    res.status(404).send({message: 'Not found'})
-  })
   .then((result) =>{
     res.status(200).res.send(result)
+  })
+  .catch(() => {
+    res.status(404).send({message: 'Not found'})
   })
 });
 
