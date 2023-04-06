@@ -31,8 +31,8 @@ const createUser = (req, res) => {
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, {name, about}, { new: true })
-  .then((user) => res.status(200).send(user))
+  User.findByIdAndUpdate(req.user._id, {$set: {name, about}}, { new: true })
+  .then((user) =>  res.status(200).send(user))
   .catch(() => res.status(400).send({message: 'Incorrect data'}))
 }
 
