@@ -1,24 +1,17 @@
 const Cards = require('../models/card');
+const ERROR_CODE = 400;
+const ERROR_USER = 404;
+const ERROR_DEFAULT = 500;
+const SUCSESS = 200;
 
 const getCards = (req, res) => {
   Cards.find({})
   .populate('owner')
   .then((cards) => {
-    res.status(200).send(cards);
+    res.status(SUCSESS).send(cards);
   })
   .catch(() => {
-    res.status(500).send({message: 'Sorry, something went wrong'});
-  })
-}
-
-const deleteCard = (req, res) => {
-  const { cardId } = req.params;
-  Cards.findByIdAndDelete(cardId)
-  .then((result) =>{
-    res.status(200).res.send(result)
-  })
-  .catch(() => {
-    res.status(404).send({message: 'Not found'})
+    res.status(ERROR_DEFAULT).send({message: 'Sorry, something went wrong'});
   })
 }
 
@@ -26,23 +19,41 @@ const newCard = (req, res) => {
   const { name, link } = req.body;
   Cards.create({ name, link, owner: req.user._id })
   .then((newCard) => {
-    res.status(200).send(newCard);
+    res.status(SUCSESS).send(newCard);
   })
   .catch(() => {
-    res.status(400).send({message: 'Incorrect data'})
+    res.status(ERROR_CODE).send({message: 'Incorrect data'})
   })
-  }
+}
+
+const deleteCard = (req, res) => {
+  const { cardId } = req.params;
+  Cards.findByIdAndDelete(cardId)
+  .orFail(
+    () => res.status(ERROR_CODE).send({message: 'Not found'})
+  )
+  .then((result) => {
+    res.status(SUCSESS).send(result)
+  })
+  .catch(() => {
+    res.status(ERROR_USER).send({message: 'Not found'})
+  })
+}
 
 const likeCard = (req, res) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).then((result) =>{
-    res.status(200).send(result)
+  )
+  .orFail(
+    () => res.status(ERROR_CODE).send({message: 'Not found'})
+  )
+  .then((result) =>{
+    res.status(SUCSESS).send(result)
   })
   .catch(() => {
-    res.status(404).send({message: 'Not found'})
+    res.status(ERROR_DEFAULT).send({message: 'Not found'})
   })
 }
 
@@ -51,11 +62,15 @@ const dislikeCard = (req, res) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  )  .then((result) =>{
-    res.status(200).send(result)
+  )
+  .orFail(
+    () => res.status(ERROR_CODE).send({message: 'Not found'})
+  )
+  .then((result) =>{
+    res.status(SUCSESS).send(result)
   })
   .catch(() => {
-    res.status(404).send({message: 'Not found'})
+    res.status(ERROR_USER).send({message: 'Not found'})
   })
 }
 

@@ -11,7 +11,11 @@ const getUsers = (req, res) => {
 
 const findUser = (req, res) => {
   const { userId } = req.params;
-  User.findById(userId).then((user) => {
+  User.findById(userId)
+  .orFail(
+    () => res.status(400).send({message: 'Not found'})
+  )
+  .then((user) => {
     res.status(200).send(user);
   })
   .catch(() => {
