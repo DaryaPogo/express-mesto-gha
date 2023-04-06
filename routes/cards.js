@@ -1,37 +1,14 @@
 const router = require('express').Router();
-const Cards = require('../models/card');
+const { getCard, deleteCard, newCard, likeCard, dislikeCard} = require('../controllers/cards');
 
-router.get('/', (req, res) => {
-  Cards.find({})
-  .populate('owner')
-  .then((cards) => {
-    res.status(200).send(cards);
-  })
-  .catch(() => {
-    res.status(500).send({message: 'Sorry, something went wrong'});
-  })
-});
+router.get('/', getCard);
 
-router.post('/', (req, res) => {
-  const { name, link } = req.body;
-  Cards.create({ name, link, owner: req.user._id })
-  .then((newCard) => {
-    res.status(200).res.send(newCard);
-  })
-  .catch(() => {
-    res.status(400).send({message: 'Incorrect data'})
-  })
-  });
+router.post('/', newCard);
 
-router.delete('/:cardId', (req, res) => {
-  const { cardId } = req.params;
-  Cards.findByIdAndDelete(cardId)
-  .then((result) =>{
-    res.status(200).res.send(result)
-  })
-  .catch(() => {
-    res.status(404).send({message: 'Not found'})
-  })
-});
+router.delete('/:cardId', deleteCard);
+
+router.put('/:cardId/likes', likeCard);
+
+router.delete('/:cardId/likes', dislikeCard);
 
 module.exports = router;
