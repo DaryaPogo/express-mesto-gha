@@ -22,8 +22,8 @@ const createCard = (req, res) => {
     .then((newCard) => {
       res.status(SUCSESS).send(newCard);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      res.status(ERROR_CODE).send({ message: err.message });
     });
 };
 
@@ -31,13 +31,17 @@ const deleteCard = (req, res) => {
   const { cardId } = req.params;
   Cards.findByIdAndDelete(cardId)
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'Not found' });
+      res.status(ERROR_USER).send({ message: 'User is not found' });
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 
@@ -48,13 +52,17 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'Not found' });
+      res.status(ERROR_USER).send({ message: 'User is not found'});
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 
@@ -65,13 +73,17 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'Not found' });
+      res.status(ERROR_USER).send({ message: 'User is not found' });
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 

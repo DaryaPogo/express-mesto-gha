@@ -19,13 +19,17 @@ const findUser = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'Not found' });
+      res.status(ERROR_USER).send({ message: 'User is not found' });
     })
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 
@@ -35,8 +39,8 @@ const createUser = (req, res) => {
     .then((newUser) => {
       res.status(SUCSESS).send(newUser);
     })
-    .catch(() => {
-      res.status(ERROR_CODE).send({ message: 'Incorrect data' });
+    .catch((err) => {
+      res.status(ERROR_CODE).send({ message: err.message });
     });
 };
 
@@ -46,14 +50,14 @@ const updateProfile = (req, res) => {
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
-    .catch(() => res.status(ERROR_CODE).send({ message: 'Incorrect data' }));
+    .catch((err) => res.status(ERROR_CODE).send({ message: err.message }));
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.status(200).send(user))
-    .catch(() => res.status(ERROR_CODE).send({ message: 'Incorrect data' }));
+    .catch((err) => res.status(ERROR_CODE).send({ message: err.message }));
 };
 
 module.exports = {
