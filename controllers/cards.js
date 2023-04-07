@@ -52,7 +52,7 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'User is not found'});
+      res.status(ERROR_USER).send({ message: 'User is not found' });
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
