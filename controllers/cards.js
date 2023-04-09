@@ -23,7 +23,11 @@ const createCard = (req, res) => {
       res.status(SUCSESS).send(newCard);
     })
     .catch((err) => {
-      res.status(ERROR_CODE).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 

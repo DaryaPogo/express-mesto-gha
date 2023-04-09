@@ -6,6 +6,7 @@ const cardsRouter = require('./routes/cards');
 
 const app = express();
 const PORT = 3000;
+const ERROR_USER = 404;
 
 app.use(bodyParser.json());
 
@@ -20,7 +21,7 @@ app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Not found' });
+  res.status(ERROR_USER).send({ message: 'Not found' });
 });
 
 mongoose

@@ -40,7 +40,11 @@ const createUser = (req, res) => {
       res.status(SUCSESS).send(newUser);
     })
     .catch((err) => {
-      res.status(ERROR_CODE).send({ message: err.message });
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
     });
 };
 
@@ -50,14 +54,26 @@ const updateProfile = (req, res) => {
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
-    .catch((err) => res.status(ERROR_CODE).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
+    });
 };
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => res.status(200).send(user))
-    .catch((err) => res.status(ERROR_CODE).send({ message: err.message }));
+    .then((user) => res.status(SUCSESS).send(user))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        res.status(ERROR_CODE).send({ message: err.message });
+      } else {
+        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      }
+    });
 };
 
 module.exports = {
