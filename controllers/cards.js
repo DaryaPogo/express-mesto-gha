@@ -33,20 +33,24 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   const { cardId } = req.params;
-  Cards.findByIdAndDelete(cardId)
-    .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'User is not found' });
-    })
-    .then((result) => {
-      res.status(SUCSESS).send(result);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: err.message });
-      } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
-      }
-    });
+  if (cardId === req.user._id) {
+    Cards.findByIdAndDelete(cardId)
+      .orFail(() => {
+        res.status(ERROR_USER).send({ message: 'Card is not found' });
+      })
+      .then((result) => {
+        res.status(SUCSESS).send(result);
+      })
+      .catch((err) => {
+        if (err.name === 'CastError') {
+          res.status(ERROR_CODE).send({ message: err.message });
+        } else {
+          res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        }
+      });
+  } else {
+    throw new Error('Invalid Error');
+  }
 };
 
 const likeCard = (req, res) => {

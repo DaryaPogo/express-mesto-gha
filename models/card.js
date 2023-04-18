@@ -1,15 +1,20 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'required field'],
-    minlength: [2, 'Length must be greate 2'],
+    minlength: [2, 'Length must be greate than 2'],
     maxlength: [30, 'Length must be less than 30'],
   },
   link: {
     type: String,
     required: [true, 'required field'],
+    validate: {
+      validator: (value) => validator.isEmail(value),
+      message: 'Invalid email',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

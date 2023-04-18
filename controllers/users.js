@@ -1,4 +1,7 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+// const crypto = require('crypto');
 
 const ERROR_CODE = 400;
 const ERROR_USER = 404;
@@ -16,8 +19,7 @@ const getUsers = (req, res) => {
 };
 
 const findUser = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
+  User.findById(req.user._id)
     .orFail(() => {
       res.status(ERROR_USER).send({ message: 'User is not found' });
     })
@@ -34,17 +36,37 @@ const findUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((newUser) => {
-      res.status(SUCSESS).send(newUser);
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
+  bcrypt.hash(password, 10).then((hash) => {
+    User.create({
+      name, about, avatar, email, password: hash,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
-      } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
-      }
+      .then((newUser) => {
+        res.status(SUCSESS).send(newUser.toJSON());
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res.status(ERROR_CODE).send({ message: err.message });
+        } else {
+          res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        }
+      });
+  });
+};
+
+const getInfo = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      res.status(SUCSESS).send(user);
+    })
+    .catch(() => {
+      res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
     });
 };
 
@@ -76,10 +98,31 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findOne({ email }).select('+password')
+    .then(async (user) => {
+      const matched = await bcrypt.compare(password, user.password);
+      if (matched) {
+        const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+        res.cookie('jwt', token, { httpOnly: true })
+          .send(user.toJSON());
+      } else {
+        throw new Error('Invalid email');
+      }
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUsers,
   findUser,
-  createUser,
+  getInfo,
   updateProfile,
   updateAvatar,
+  login,
+  createUser,
 };
