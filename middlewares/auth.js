@@ -7,7 +7,7 @@ const autotorization = (req, res, next) => {
     req.user = playload;
     next();
   } catch (err) {
-    res.status(401).send('Invalid token');
+    res.status(401).send({ message: 'Invalid token' });
   }
 };
 
