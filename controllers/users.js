@@ -5,6 +5,7 @@ const InvalidError = require('../errors/InvalidError');
 const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
 const DefaultError = require('../errors/DefaultError');
+const RequestError = require('../errors/RequestError');
 
 const SUCSESS = 200;
 
@@ -54,7 +55,7 @@ const createUser = (req, res, next) => {
       })
       .catch((err) => {
         if (err.code === 11000) {
-          throw new BadRequestError('email занят');
+          throw new RequestError('email занят');
         } else if (err.name === 'ValidationError') {
           throw new BadRequestError('Incorrect data');
         } else {
@@ -118,7 +119,7 @@ const login = (req, res, next) => {
         res.cookie('jwt', token, { httpOnly: true })
           .send(user.toJSON());
       } else {
-        throw new Error('Invalid email');
+        throw new NotFoundError('Invalid email');
       }
     })
     .catch((err) => {
