@@ -3,7 +3,8 @@
 
 "rules": {
   "no-underscore-dangle": ["error",{"allow":["_id"]}],
-  "no-useless-escape": "off"
+  "no-useless-escape": "off",
+  "linebreak-style": 0
 }
 }
 
