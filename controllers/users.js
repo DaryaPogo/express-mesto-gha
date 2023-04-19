@@ -8,17 +8,18 @@ const DefaultError = require('../errors/DefaultError');
 
 const SUCSESS = 200;
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(SUCSESS).send(users);
     })
-    .catch(() => {
+    .catch((err) => {
       throw new DefaultError('Sorry, something went wrong');
+      next(err);
     });
 };
 
-const findUser = (req, res) => {
+const findUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
       throw new NotFoundError('Нет пользователя с таким id');
@@ -28,14 +29,15 @@ const findUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -51,26 +53,32 @@ const createUser = (req, res) => {
         res.status(SUCSESS).send(newUser.toJSON());
       })
       .catch((err) => {
+        if (err.code === 11000) {
+          throw new BadRequestError('email занят');
+        }
         if (err.name === 'ValidationError') {
-          throw new BadRequestError('ss');
+          throw new BadRequestError('Incorrect data');
         } else {
           throw new DefaultError('Sorry, something went wrong');
         }
-      });
+        next(err);
+      })
+      .catch(next);
   });
 };
 
-const getInfo = (req, res) => {
+const getInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
-    .catch(() => {
+    .catch((err) => {
       throw new DefaultError('Sorry, something went wrong');
+      next(err);
     });
 };
 
-const updateProfile = (req, res) => {
+const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
@@ -78,27 +86,29 @@ const updateProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
     .then((user) => res.status(SUCSESS).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findOne({ email }).select('+password')
@@ -112,8 +122,9 @@ const login = (req, res) => {
         throw new Error('Invalid email');
       }
     })
-    .catch(() => {
+    .catch((err) => {
       throw new InvalidError('Invalid token');
+      next(err);
     });
 };
 

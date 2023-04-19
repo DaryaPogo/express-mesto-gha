@@ -6,18 +6,19 @@ const ForbiddenError = require('../errors/ForbiddenError');
 
 const SUCSESS = 200;
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Cards.find({})
     .populate('owner')
     .then((cards) => {
       res.status(SUCSESS).send(cards);
     })
-    .catch(() => {
+    .catch((err) => {
       throw new DefaultError('Sorry, something went wrong');
+      next(err);
     });
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   Cards.create({ name, link, owner: req.user._id })
     .then((newCard) => {
@@ -25,14 +26,15 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
   if (cardId === req.user._id) {
     Cards.findByIdAndDelete(cardId)
@@ -44,17 +46,18 @@ const deleteCard = (req, res) => {
       })
       .catch((err) => {
         if (err.name === 'CastError') {
-          throw new BadRequestError('ss');
+          throw new BadRequestError('Incorrect data');
         } else {
           throw new DefaultError('Sorry, something went wrong');
         }
+        next(err);
       });
   } else {
     throw new Error('Invalid Error');
   }
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -68,14 +71,15 @@ const likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -89,10 +93,11 @@ const dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('ss');
+        throw new BadRequestError('Incorrect data');
       } else {
         throw new DefaultError('Sorry, something went wrong');
       }
+      next(err);
     });
 };
 
