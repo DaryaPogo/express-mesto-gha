@@ -12,7 +12,9 @@ const {
   login,
   createUser,
 } = require('./controllers/users');
-const NotFoundError = require('./errors/notFound');
+
+const ERROR_USER = 404;
+// const NotFoundError = require('./errors/notFound');
 
 const app = express();
 const PORT = 3000;
@@ -54,7 +56,7 @@ app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
 app.use('*', (req, res) => {
-  throw new NotFoundError('Not found');
+  res.status(ERROR_USER).send({ message: 'Not found' });
 });
 
 app.use(errors());

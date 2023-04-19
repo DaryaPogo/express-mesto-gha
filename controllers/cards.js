@@ -2,6 +2,7 @@ const Cards = require('../models/card');
 const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
 const DefaultError = require('../errors/DefaultError');
+const ForbiddenError = require('../errors/ForbiddenError');
 
 const SUCSESS = 200;
 
@@ -36,7 +37,7 @@ const deleteCard = (req, res) => {
   if (cardId === req.user._id) {
     Cards.findByIdAndDelete(cardId)
       .orFail(() => {
-        throw new NotFoundError('Нет пользователя с таким id');
+        throw new ForbiddenError('Недостаточно прав');
       })
       .then((result) => {
         res.status(SUCSESS).send(result);
