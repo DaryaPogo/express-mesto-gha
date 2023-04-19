@@ -12,12 +12,10 @@ const {
   login,
   createUser,
 } = require('./controllers/users');
+const NotFoundError = require('./errors/notFound');
 
 const app = express();
 const PORT = 3000;
-const ERROR_USER = 404;
-
-app.use(errors());
 
 app.use(bodyParser.json());
 app.use(cookiesParser());
@@ -56,12 +54,22 @@ app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
 app.use('*', (req, res) => {
-  res.status(ERROR_USER).send({ message: 'Not found' });
+  throw new NotFoundError('Not found');
 });
 
-// app.use((err, req, res, next) => {
-//   console.log(err.message);
-// });
+app.use(errors());
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+});
 
 mongoose
   .connect('mongodb://127.0.0.1:27017/mestodb')

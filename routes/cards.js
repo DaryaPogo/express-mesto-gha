@@ -13,14 +13,14 @@ const {
 router.get('/', getCards);
 
 router.post('/', celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30)
       .messages({
         'string.min': 'Length must be greate than 2',
         'string.max': 'Length must be less than 30',
         'any.required': 'Field is required',
       }),
-    link: Joi.string().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
+    link: Joi.string().required().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
   }),
 }), createCard);
 

@@ -1,11 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-// const crypto = require('crypto');
+const InvalidError = require('../errors/InvalidError');
+const NotFoundError = require('../errors/notFound');
+const BadRequestError = require('../errors/BadRequestError');
+const DefaultError = require('../errors/DefaultError');
 
-const ERROR_CODE = 400;
-const ERROR_USER = 404;
-const ERROR_DEFAULT = 500;
 const SUCSESS = 200;
 
 const getUsers = (req, res) => {
@@ -14,23 +14,23 @@ const getUsers = (req, res) => {
       res.status(SUCSESS).send(users);
     })
     .catch(() => {
-      res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      throw new DefaultError('Sorry, something went wrong');
     });
 };
 
 const findUser = (req, res) => {
   User.findById(req.user._id)
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'User is not found' });
+      throw new NotFoundError('Нет пользователя с таким id');
     })
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
@@ -52,9 +52,9 @@ const createUser = (req, res) => {
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({ message: err.message });
+          throw new BadRequestError('ss');
         } else {
-          res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+          throw new DefaultError('Sorry, something went wrong');
         }
       });
   });
@@ -66,7 +66,7 @@ const getInfo = (req, res) => {
       res.status(SUCSESS).send(user);
     })
     .catch(() => {
-      res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      throw new DefaultError('Sorry, something went wrong');
     });
 };
 
@@ -78,9 +78,9 @@ const updateProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
@@ -91,9 +91,9 @@ const updateAvatar = (req, res) => {
     .then((user) => res.status(SUCSESS).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
@@ -112,8 +112,8 @@ const login = (req, res) => {
         throw new Error('Invalid email');
       }
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
+    .catch(() => {
+      throw new InvalidError('Invalid token');
     });
 };
 

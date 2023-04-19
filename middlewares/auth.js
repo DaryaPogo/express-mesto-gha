@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const InvalidError = require('../errors/InvalidError');
 
 const autotorization = (req, res, next) => {
   const token = req.cookies.jwt;
@@ -7,7 +8,7 @@ const autotorization = (req, res, next) => {
     req.user = playload;
     next();
   } catch (err) {
-    res.status(401).send({ message: 'Invalid token' });
+    throw new InvalidError('Invalid token');
   }
 };
 

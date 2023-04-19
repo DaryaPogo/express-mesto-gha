@@ -1,8 +1,8 @@
 const Cards = require('../models/card');
+const NotFoundError = require('../errors/notFound');
+const BadRequestError = require('../errors/BadRequestError');
+const DefaultError = require('../errors/DefaultError');
 
-const ERROR_CODE = 400;
-const ERROR_USER = 404;
-const ERROR_DEFAULT = 500;
 const SUCSESS = 200;
 
 const getCards = (req, res) => {
@@ -12,7 +12,7 @@ const getCards = (req, res) => {
       res.status(SUCSESS).send(cards);
     })
     .catch(() => {
-      res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+      throw new DefaultError('Sorry, something went wrong');
     });
 };
 
@@ -24,9 +24,9 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
@@ -36,16 +36,16 @@ const deleteCard = (req, res) => {
   if (cardId === req.user._id) {
     Cards.findByIdAndDelete(cardId)
       .orFail(() => {
-        res.status(ERROR_USER).send({ message: 'Card is not found' });
+        throw new NotFoundError('Нет пользователя с таким id');
       })
       .then((result) => {
         res.status(SUCSESS).send(result);
       })
       .catch((err) => {
         if (err.name === 'CastError') {
-          res.status(ERROR_CODE).send({ message: err.message });
+          throw new BadRequestError('ss');
         } else {
-          res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+          throw new DefaultError('Sorry, something went wrong');
         }
       });
   } else {
@@ -60,16 +60,16 @@ const likeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'User is not found' });
+      throw new NotFoundError('Нет пользователя с таким id');
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
@@ -81,16 +81,16 @@ const dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail(() => {
-      res.status(ERROR_USER).send({ message: 'User is not found' });
+      throw new NotFoundError('Нет пользователя с таким id');
     })
     .then((result) => {
       res.status(SUCSESS).send(result);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({ message: err.message });
+        throw new BadRequestError('ss');
       } else {
-        res.status(ERROR_DEFAULT).send({ message: 'Sorry, something went wrong' });
+        throw new DefaultError('Sorry, something went wrong');
       }
     });
 };
