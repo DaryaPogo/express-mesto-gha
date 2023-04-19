@@ -112,20 +112,21 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findOne({ email }).select('+password')
-    .then(async (user) => {
-      const matched = await bcrypt.compare(password, user.password);
-      if (matched) {
-        const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-        res.cookie('jwt', token, { httpOnly: true })
-          .send(user.toJSON());
+    .then((user) => {
+      if (user) {
+        const matched = bcrypt.compare(password, user.password);
+        if (matched) {
+          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+          res.cookie('jwt', token, { httpOnly: true })
+            .send(user.toJSON());
+        } else {
+          throw new NotFoundError('Invalid email');
+        }
       } else {
-        throw new NotFoundError('Invalid email');
+        throw new NotFoundError('User not found');
       }
     })
-    .catch((err) => {
-      throw new InvalidError('Invalid token');
-      next(err);
-    });
+    .catch(next);
 };
 
 module.exports = {
