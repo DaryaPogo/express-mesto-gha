@@ -5,6 +5,7 @@ const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
 const DefaultError = require('../errors/DefaultError');
 const RequestError = require('../errors/RequestError');
+const InvalidError = require('../errors/InvalidError');
 
 const SUCSESS = 200;
 
@@ -23,6 +24,15 @@ const findUser = (req, res, next) => {
       if (!user) {
         throw new NotFoundError('Нет пользователя с таким id');
       }
+      res.status(SUCSESS).send(user);
+    })
+    .catch(next);
+};
+
+const getInfo = (req, res, next) => {
+  console.log(req.user);
+  User.findById(req.user)
+    .then((user) => {
       res.status(SUCSESS).send(user);
     })
     .catch(next);
@@ -55,14 +65,6 @@ const createUser = (req, res, next) => {
       })
       .catch(next);
   });
-};
-
-const getInfo = (req, res, next) => {
-  User.findById(req.user)
-    .then((user) => {
-      res.status(SUCSESS).send(user);
-    })
-    .catch(next);
 };
 
 const updateProfile = (req, res, next) => {
@@ -108,7 +110,7 @@ const login = (req, res, next) => {
           throw new NotFoundError('Invalid email');
         }
       } else {
-        throw new NotFoundError('User not found');
+        throw new InvalidError('User not found');
       }
     })
     .catch(next);
