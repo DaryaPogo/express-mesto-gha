@@ -52,7 +52,8 @@ const createUser = (req, res, next) => {
           throw new DefaultError('Sorry, something went wrong');
         }
         next(err);
-      });
+      })
+      .catch(next);
   });
 };
 

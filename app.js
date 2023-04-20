@@ -23,8 +23,12 @@ app.use(cookiesParser());
 
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
+    email: Joi.string().required().email().messages({
+      'any.required': 'Field is required',
+    }),
+    password: Joi.string().required().messages({
+      'any.required': 'Field is required',
+    }),
   }),
 }), login);
 
@@ -39,12 +43,10 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30).messages({
       'string.min': 'Length must be greate than 2',
       'string.max': 'Length must be less than 30',
-      'any.required': 'Field is required',
     }),
     about: Joi.string().min(2).max(30).messages({
       'string.min': 'Length must be greate than 2',
       'string.max': 'Length must be less than 30',
-      'any.required': 'Field is required',
     }),
     avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
   }),
