@@ -13,12 +13,14 @@ const {
 } = require('../controllers/users');
 
 router.get('/', getUsers);
+router.get('/me', getInfo);
+
 router.get(
   '/:userId',
   celebrate({
     [Segments.BODY]: {
-      id: Joi.custom((valid) => {
-        if (!mongoose.isValidObjectId(valid)) {
+      id: Joi.custom((value) => {
+        if (!mongoose.isValidObjectId(value)) {
           throw new BadRequestError('Invalid Error');
         }
       }),
@@ -26,7 +28,6 @@ router.get(
   }),
   findUser,
 );
-router.get('/me', getInfo);
 
 router.patch('/me', celebrate({
   [Segments.BODY]: Joi.object().keys({
