@@ -1,7 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const InvalidError = require('../errors/InvalidError');
 const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
 const DefaultError = require('../errors/DefaultError');
@@ -14,28 +13,19 @@ const getUsers = (req, res, next) => {
     .then((users) => {
       res.status(SUCSESS).send(users);
     })
-    .catch((err) => {
-      throw new DefaultError('Sorry, something went wrong');
-      next(err);
-    });
+    .catch(next);
 };
 
 const findUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(() => {
-      throw new NotFoundError('Нет пользователя с таким id');
-    })
+  const { userId } = req.params;
+  User.findById(userId)
     .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      }
       res.status(SUCSESS).send(user);
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Incorrect data');
-      } else {
-        throw new DefaultError('Sorry, something went wrong');
-      }
-      next(err);
-    });
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
@@ -62,33 +52,27 @@ const createUser = (req, res, next) => {
           throw new DefaultError('Sorry, something went wrong');
         }
         next(err);
-      })
-      .catch(next);
+      });
   });
 };
 
 const getInfo = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.user)
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
-    .catch((err) => {
-      throw new DefaultError('Sorry, something went wrong');
-      next(err);
-    });
+    .catch(next);
 };
 
 const updateProfile = (req, res, next) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       res.status(SUCSESS).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Incorrect data');
-      } else {
-        throw new DefaultError('Sorry, something went wrong');
       }
       next(err);
     });

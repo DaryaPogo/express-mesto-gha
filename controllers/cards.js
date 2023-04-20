@@ -12,15 +12,12 @@ const getCards = (req, res, next) => {
     .then((cards) => {
       res.status(SUCSESS).send(cards);
     })
-    .catch((err) => {
-      throw new DefaultError('Sorry, something went wrong');
-      next(err);
-    });
+    .catch(next);
 };
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  Cards.create({ name, link, owner: req.user._id })
+  Cards.create({ name, link, owner: req.user })
     .then((newCard) => {
       res.status(SUCSESS).send(newCard);
     })
@@ -36,7 +33,7 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  if (cardId === req.user._id) {
+  if (cardId === req.user) {
     Cards.findByIdAndDelete(cardId)
       .orFail(() => {
         throw new ForbiddenError('Недостаточно прав');
@@ -53,14 +50,14 @@ const deleteCard = (req, res, next) => {
         next(err);
       });
   } else {
-    throw new Error('Invalid Error');
+    throw new DefaultError('Invalid Error');
   }
 };
 
 const likeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user } },
     { new: true },
   )
     .orFail(() => {
@@ -82,7 +79,7 @@ const likeCard = (req, res, next) => {
 const dislikeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user } },
     { new: true },
   )
     .orFail(() => {

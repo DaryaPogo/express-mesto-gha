@@ -12,8 +12,8 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: [true, 'required field'],
     validate: {
-      validator: (value) => validator.isEmail(value),
-      message: 'Invalid email',
+      validator: (value) => validator.isURL(value),
+      message: 'Must be a Valid URL',
     },
   },
   owner: {

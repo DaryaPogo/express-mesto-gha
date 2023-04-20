@@ -2,6 +2,8 @@ const router = require('express').Router();
 const { celebrate, Joi, Segments } = require('celebrate');
 const mongoose = require('mongoose');
 
+const BadRequestError = require('../errors/BadRequestError');
+
 const {
   getCards,
   deleteCard,
@@ -20,7 +22,9 @@ router.post('/', celebrate({
         'string.max': 'Length must be less than 30',
         'any.required': 'Field is required',
       }),
-    link: Joi.string().required().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
+    link: Joi.string().required().messages({
+      'any.required': 'Field is required',
+    }),
   }),
 }), createCard);
 
@@ -30,7 +34,7 @@ router.delete(
     [Segments.BODY]: {
       id: Joi.custom((valid) => {
         if (!mongoose.isValidObjectId(valid)) {
-          throw new Error('Invalid Error');
+          throw new BadRequestError('Invalid Error');
         }
       }),
     },
@@ -38,8 +42,32 @@ router.delete(
   deleteCard,
 );
 
-router.put('/:cardId/likes', likeCard);
+router.put(
+  '/:cardId/likes',
+  celebrate({
+    [Segments.BODY]: {
+      id: Joi.custom((valid) => {
+        if (!mongoose.isValidObjectId(valid)) {
+          throw new BadRequestError('Invalid Error');
+        }
+      }),
+    },
+  }),
+  likeCard,
+);
 
-router.delete('/:cardId/likes', dislikeCard);
+router.delete(
+  '/:cardId/likes',
+  celebrate({
+    [Segments.BODY]: {
+      id: Joi.custom((valid) => {
+        if (!mongoose.isValidObjectId(valid)) {
+          throw new BadRequestError('Invalid Error');
+        }
+      }),
+    },
+  }),
+  dislikeCard,
+);
 
 module.exports = router;

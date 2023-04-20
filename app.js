@@ -14,7 +14,6 @@ const {
 } = require('./controllers/users');
 
 const ERROR_USER = 404;
-// const NotFoundError = require('./errors/notFound');
 
 const app = express();
 const PORT = 3000;
