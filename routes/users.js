@@ -18,7 +18,7 @@ router.get('/me', getInfo);
 router.get(
   '/:userId',
   celebrate({
-    [Segments.BODY]: {
+    [Segments.PARAMS]: {
       userId: Joi.custom((value, helpers) => {
         if (!mongoose.isValidObjectId(value)) {
           throw new BadRequestError('Invalid Error');
