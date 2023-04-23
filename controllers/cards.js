@@ -24,11 +24,9 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequestError('Incorrect data');
-      } else {
-        throw new DefaultError('Sorry, something went wrong');
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 const deleteCard = (req, res, next) => {
@@ -59,17 +57,15 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user } },
     { new: true },
   )
-    .orFail(() => {
-      throw new NotFoundError('Нет пользователя с таким id');
-    })
     .then((result) => {
+      if (!result) {
+        throw new NotFoundError('Нет карточки с таким id');
+      }
       res.status(SUCSESS).send(result);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Incorrect data');
-      } else {
-        throw new DefaultError('Sorry, something went wrong');
       }
       next(err);
     });
@@ -90,11 +86,9 @@ const dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         throw new BadRequestError('Incorrect data');
-      } else {
-        throw new DefaultError('Sorry, something went wrong');
       }
-    })
-    .catch(next);
+      next(err);
+    });
 };
 
 module.exports = {

@@ -22,8 +22,9 @@ router.post('/', celebrate({
         'string.max': 'Length must be less than 30',
         'any.required': 'Field is required',
       }),
-    link: Joi.string().required().messages({
+    link: Joi.string().required().uri().messages({
       'any.required': 'Field is required',
+      'string.uri': 'Must be URL',
     }),
   }),
 }), createCard);
@@ -32,7 +33,7 @@ router.delete(
   '/:cardId',
   celebrate({
     [Segments.BODY]: {
-      id: Joi.custom((valid) => {
+      cardId: Joi.custom((valid) => {
         if (!mongoose.isValidObjectId(valid)) {
           throw new BadRequestError('Invalid Error');
         }
@@ -45,9 +46,9 @@ router.delete(
 router.put(
   '/:cardId/likes',
   celebrate({
-    [Segments.BODY]: {
-      id: Joi.custom((valid) => {
-        if (!mongoose.isValidObjectId(valid)) {
+    [Segments.PARAMS]: {
+      cardId: Joi.custom((value) => {
+        if (!mongoose.isValidObjectId(value)) {
           throw new BadRequestError('Invalid Error');
         }
       }),
@@ -60,8 +61,8 @@ router.delete(
   '/:cardId/likes',
   celebrate({
     [Segments.BODY]: {
-      id: Joi.custom((valid) => {
-        if (!mongoose.isValidObjectId(valid)) {
+      cardId: Joi.custom((value) => {
+        if (!mongoose.isValidObjectId(value)) {
           throw new BadRequestError('Invalid Error');
         }
       }),
