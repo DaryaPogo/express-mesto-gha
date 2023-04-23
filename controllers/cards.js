@@ -55,11 +55,12 @@ const likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((result) => {
-      if (!result) {
+    .then((card) => {
+      if (!card) {
         next(new NotFoundError('Нет карточки с таким id'));
+      } else {
+        res.status(SUCSESS).send(card);
       }
-      res.status(SUCSESS).send(result);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -78,8 +79,9 @@ const dislikeCard = (req, res, next) => {
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Нет карточки с таким id'));
+      } else {
+        res.status(SUCSESS).send(card);
       }
-      res.status(SUCSESS).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
