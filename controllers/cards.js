@@ -1,7 +1,6 @@
 const Cards = require('../models/card');
 const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
-const DefaultError = require('../errors/DefaultError');
 const ForbiddenError = require('../errors/ForbiddenError');
 
 const SUCSESS = 200;
@@ -31,24 +30,23 @@ const createCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
-  if (cardId === req.user) {
-    Cards.findByIdAndDelete(cardId)
-      .orFail(() => {
+  Cards.findById(cardId)
+    .orFail(() => new NotFoundError('Нет карточки с таким id'))
+    .then((card) => {
+      if (card.owner.toString() === req.user._id) {
+        Cards.findByIdAndDelete(cardId)
+          .then(() => res.status(SUCSESS).send(card));
+      } else {
         throw new ForbiddenError('Недостаточно прав');
-      })
-      .then((result) => {
-        res.status(SUCSESS).send(result);
-      })
-      .catch((err) => {
-        if (err.name === 'CastError') {
-          throw new BadRequestError('Incorrect data');
-        } else {
-          throw new DefaultError('Sorry, something went wrong');
-        }
-      });
-  } else {
-    throw new DefaultError('Invalid Error');
-  }
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Incorrect data');
+      } else {
+        next(err);
+      }
+    });
 };
 
 const likeCard = (req, res, next) => {

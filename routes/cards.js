@@ -22,10 +22,7 @@ router.post('/', celebrate({
         'string.max': 'Length must be less than 30',
         'any.required': 'Field is required',
       }),
-    link: Joi.string().required().uri().messages({
-      'any.required': 'Field is required',
-      'string.uri': 'Must be URL',
-    }),
+    link: Joi.string().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
   }),
 }), createCard);
 
