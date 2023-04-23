@@ -1,8 +1,5 @@
 const router = require('express').Router();
-const { celebrate, Joi, Segments } = require('celebrate');
-const mongoose = require('mongoose');
-
-const BadRequestError = require('../errors/BadRequestError');
+const { celebrate, Joi } = require('celebrate');
 
 const {
   getCards,

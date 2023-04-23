@@ -55,7 +55,7 @@ const createUser = (req, res, next) => {
         if (err.code === 11000) {
           next(new RequestError('email занят'));
         } else if (err.name === 'ValidationError') {
-          next(new BadRequestError(err.message));
+          next(new BadRequestError('Incorrect data'));
         } else {
           next(err);
         }
