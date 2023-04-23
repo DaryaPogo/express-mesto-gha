@@ -22,7 +22,7 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       }
       next(err);
     });
@@ -37,12 +37,12 @@ const deleteCard = (req, res, next) => {
         Cards.findByIdAndDelete(cardId)
           .then(() => res.status(SUCSESS).send(card));
       } else {
-        throw new ForbiddenError('Недостаточно прав');
+        next(new ForbiddenError('Недостаточно прав'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       } else {
         next(err);
       }
@@ -57,13 +57,13 @@ const likeCard = (req, res, next) => {
   )
     .then((result) => {
       if (!result) {
-        throw new NotFoundError('Нет карточки с таким id');
+        next(new NotFoundError('Нет карточки с таким id'));
       }
       res.status(SUCSESS).send(result);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       }
       next(err);
     });
@@ -77,13 +77,13 @@ const dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        throw new NotFoundError('Нет карточки с таким id');
+        next(new NotFoundError('Нет карточки с таким id'));
       }
       res.status(SUCSESS).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       }
       next(err);
     });

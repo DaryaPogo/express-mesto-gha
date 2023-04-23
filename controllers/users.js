@@ -21,7 +21,7 @@ const findUser = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
+        next(new NotFoundError('Нет пользователя с таким id'));
       }
       res.status(SUCSESS).send(user);
     })
@@ -53,11 +53,11 @@ const createUser = (req, res, next) => {
       })
       .catch((err) => {
         if (err.code === 11000) {
-          throw new RequestError('email занят');
+          next(new RequestError('email занят'));
         } else if (err.name === 'ValidationError') {
-          throw new BadRequestError('Incorrect data');
+          next(new BadRequestError('Incorrect data'));
         } else {
-          throw new DefaultError('Sorry, something went wrong');
+          next(new DefaultError('Sorry, something went wrong'));
         }
         next(err);
       })
@@ -73,7 +73,7 @@ const updateProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       }
       next(err);
     });
@@ -85,9 +85,9 @@ const updateAvatar = (req, res, next) => {
     .then((user) => res.status(SUCSESS).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Incorrect data');
+        next(new BadRequestError('Incorrect data'));
       } else {
-        throw new DefaultError('Sorry, something went wrong');
+        next(new DefaultError('Sorry, something went wrong'));
       }
       next(err);
     });
@@ -105,10 +105,10 @@ const login = (req, res, next) => {
           res.cookie('jwt', token, { httpOnly: true })
             .send(user.toJSON());
         } else {
-          throw new NotFoundError('Invalid email');
+          next(new NotFoundError('Invalid email'));
         }
       } else {
-        throw new InvalidError('User not found');
+        next(new InvalidError('User not found'));
       }
     })
     .catch(next);
