@@ -52,7 +52,7 @@ const deleteCard = (req, res, next) => {
 const likeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user } },
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .then((result) => {
@@ -72,14 +72,14 @@ const likeCard = (req, res, next) => {
 const dislikeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user } },
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      throw new NotFoundError('Нет карточки с таким id');
-    })
-    .then((result) => {
-      res.status(SUCSESS).send(result);
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Нет карточки с таким id');
+      }
+      res.status(SUCSESS).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
