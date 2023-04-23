@@ -78,7 +78,7 @@ const dislikeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Нет пользователя с таким id');
+      throw new NotFoundError('Нет карточки с таким id');
     })
     .then((result) => {
       res.status(SUCSESS).send(result);

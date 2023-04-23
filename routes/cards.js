@@ -32,13 +32,9 @@ router.post('/', celebrate({
 router.delete(
   '/:cardId',
   celebrate({
-    [Segments.BODY]: {
-      cardId: Joi.custom((valid) => {
-        if (!mongoose.isValidObjectId(valid)) {
-          throw new BadRequestError('Invalid Error');
-        }
-      }),
-    },
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
   deleteCard,
 );
@@ -46,13 +42,9 @@ router.delete(
 router.put(
   '/:cardId/likes',
   celebrate({
-    [Segments.PARAMS]: {
-      cardId: Joi.custom((value) => {
-        if (!mongoose.isValidObjectId(value)) {
-          throw new BadRequestError('Invalid Error');
-        }
-      }),
-    },
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
   likeCard,
 );
@@ -60,13 +52,9 @@ router.put(
 router.delete(
   '/:cardId/likes',
   celebrate({
-    [Segments.BODY]: {
-      cardId: Joi.custom((value) => {
-        if (!mongoose.isValidObjectId(value)) {
-          throw new BadRequestError('Invalid Error');
-        }
-      }),
-    },
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
   }),
   dislikeCard,
 );
