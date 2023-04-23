@@ -23,8 +23,9 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Incorrect data'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -35,7 +36,8 @@ const deleteCard = (req, res, next) => {
     .then((card) => {
       if (card.owner.toString() === req.user._id) {
         Cards.findByIdAndDelete(cardId)
-          .then(() => res.status(SUCSESS).send(card));
+          .then(() => res.status(SUCSESS).send(card))
+          .catch(next);
       } else {
         next(new ForbiddenError('Недостаточно прав'));
       }
@@ -65,8 +67,9 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Incorrect data'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -86,8 +89,9 @@ const dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Incorrect data'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 

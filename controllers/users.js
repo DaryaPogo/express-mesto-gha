@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/notFound');
 const BadRequestError = require('../errors/BadRequestError');
-const DefaultError = require('../errors/DefaultError');
 const RequestError = require('../errors/RequestError');
 const InvalidError = require('../errors/InvalidError');
 
@@ -22,8 +21,9 @@ const findUser = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Нет пользователя с таким id'));
+      } else {
+        res.status(SUCSESS).send(user);
       }
-      res.status(SUCSESS).send(user);
     })
     .catch(next);
 };
@@ -57,11 +57,9 @@ const createUser = (req, res, next) => {
         } else if (err.name === 'ValidationError') {
           next(new BadRequestError('Incorrect data'));
         } else {
-          next(new DefaultError('Sorry, something went wrong'));
+          next(err);
         }
-        next(err);
-      })
-      .catch(next);
+      });
   });
 };
 
@@ -81,15 +79,14 @@ const updateProfile = (req, res, next) => {
 
 const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => res.status(SUCSESS).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Incorrect data'));
       } else {
-        next(new DefaultError('Sorry, something went wrong'));
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -105,7 +102,7 @@ const login = (req, res, next) => {
           res.cookie('jwt', token, { httpOnly: true })
             .send(user.toJSON());
         } else {
-          next(new NotFoundError('Invalid email'));
+          next(new InvalidError('Invalid email'));
         }
       } else {
         next(new InvalidError('User not found'));

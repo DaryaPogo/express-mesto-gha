@@ -37,13 +37,13 @@ router.patch('/me', celebrate({
       'string.max': 'Length must be less than 30',
       'any.required': 'Field is required',
     }),
-  }).unknown(true),
+  }),
 }), updateProfile);
 
 router.patch('/me/avatar', celebrate({
   [Segments.BODY]: Joi.object().keys({
     avatar: Joi.string().regex(/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w\.-]*)*\/?$/),
-  }).unknown(true),
+  }),
 }), updateAvatar);
 
 module.exports = router;

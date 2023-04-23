@@ -8,12 +8,11 @@ const { celebrate, Joi, Segments } = require('celebrate');
 const { autotorization } = require('./middlewares/auth');
 const userRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const NotFoundError = require('./errors/notFound');
 const {
   login,
   createUser,
 } = require('./controllers/users');
-
-const ERROR_USER = 404;
 
 const app = express();
 const PORT = 3000;
@@ -56,8 +55,8 @@ app.use(autotorization);
 app.use('/users', userRouter);
 app.use('/cards', cardsRouter);
 
-app.use('*', (req, res) => {
-  res.status(ERROR_USER).send({ message: 'Page not found' });
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Page not found'));
 });
 
 app.use(errors());
@@ -72,6 +71,7 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+  next();
 });
 
 mongoose
