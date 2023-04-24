@@ -44,23 +44,25 @@ const createUser = (req, res, next) => {
     email,
     password,
   } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
-    User.create({
-      name, about, avatar, email, password: hash,
-    })
-      .then((newUser) => {
-        res.status(SUCSESS).send(newUser.toJSON());
+  bcrypt.hash(password, 10)
+    .then((hash) => {
+      User.create({
+        name, about, avatar, email, password: hash,
       })
-      .catch((err) => {
-        if (err.code === 11000) {
-          next(new RequestError('email занят'));
-        } else if (err.name === 'ValidationError') {
-          next(new BadRequestError('Incorrect data'));
-        } else {
-          next(err);
-        }
-      });
-  });
+        .then((newUser) => {
+          res.status(SUCSESS).send(newUser.toJSON());
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new RequestError('email занят'));
+          } else if (err.name === 'ValidationError') {
+            next(new BadRequestError('Incorrect data'));
+          } else {
+            next(err);
+          }
+        });
+    })
+    .catch(next);
 };
 
 const updateProfile = (req, res, next) => {
@@ -96,14 +98,17 @@ const login = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (user) {
-        const matched = bcrypt.compare(password, user.password);
-        if (matched) {
-          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-          res.cookie('jwt', token, { httpOnly: true })
-            .send(user.toJSON());
-        } else {
-          next(new InvalidError('Invalid email'));
-        }
+        bcrypt.compare(password, user.password)
+          .then((matched) => {
+            if (matched) {
+              const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+              res.cookie('jwt', token, { httpOnly: true })
+                .send(user.toJSON());
+            } else {
+              next(new InvalidError('Invalid email'));
+            }
+          })
+          .catch(next);
       } else {
         next(new InvalidError('User not found'));
       }
